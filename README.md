@@ -1,4 +1,4 @@
-# PersistentHomologyTransfer.jl
+# DiscretePersistentHomologyTransform.jl
 
 Persistent Homology Transform is produced and maintained by \
 Yossi Bokor and Katharine Turner \
@@ -8,13 +8,13 @@ This package provides an implementation of the Persistent Homology Transform, as
 
 
 ## Installation
-Currently, the best way to install PersistentHomologyTransfer is to run the following in `Julia`:
+Currently, the best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
 ```julia
 using Pkg
-Pkg.add("PersistentHomologyTransfer")
+Pkg.add("DiscretePersistentHomologyTransform")
 ```
 ## Functionality
-- PersistentHomologyTransfer computes the Persistent Homology Transform of simple, closed curves in $\mathbb{R}^2$.
+- DiscretePersistentHomologyTransform computes the Persistent Homology Transform of simple, closed curves in $\mathbb{R}^2$.
 - Rank functions of persistence diagrams. 
 - Principal Component Analysis of Rank Functions.
 
@@ -24,7 +24,7 @@ Given an $m \times 2$ matrix of ordered points sampled from a simple, closed cur
 angles = [n*pi/(directions/2) for n in 1:directions]
 directions = [[cos(x), sin(x)] for x in angles]
 ```
-To perform the Persistent Homology Transfer for the directions, run
+To perform the Persistent Homology Transform for the directions, run
 ```julia
 PHT(points, directions)
 ```
@@ -32,7 +32,7 @@ PHT(points, directions)
 This outputs an array of [Eirene](https://github.com/Eetion/Eirene.jl) Persistence Diagrams, one for each direction. 
 
 ### Rank Functions
-Given an [Eirene](https://github.com/Eetion/Eirene.jl) Persistence Diagram $D$, PersistentHomologyTransfer can calculate the Rank Function $r_D$ either exactly, or given a grid of points, calculate a discretised version. Recall that $D$ is an $n \times 2$ array of points, and hence the function `Total_Rank_Exact` accepts an $n \times 2$ array of points, and returns a list of points critical points of the Rank function and the value at each of these points. Running 
+Given an [Eirene](https://github.com/Eetion/Eirene.jl) Persistence Diagram $D$, DiscretePersistentHomologyTransform can calculate the Rank Function $r_D$ either exactly, or given a grid of points, calculate a discretised version. Recall that $D$ is an $n \times 2$ array of points, and hence the function `Total_Rank_Exact` accepts an $n \times 2$ array of points, and returns a list of points critical points of the Rank function and the value at each of these points. Running 
 
 ```julia
 rk = Total_Rank_Exact(barcode)
@@ -74,8 +74,8 @@ scores = PCA(ranks, d, weights)
 which returns the scores in $d$-dimensions.
 
 ## Examples
-### Persistent Homology Transfer
-We will go through an example using a random [shape](https://github.com/yossibokor/PersistentHomologyTransfer.jl/Example/Example1.png) and 20 directions. You can download the CSV file from [here](https://github.com/yossibokor/PersistentHomologyTransfer.jl/Example/Example1.csv)
+### Discrete Persistent Homology Transform
+We will go through an example using a random [shape](https://github.com/yossibokor/DiscretePersistentHomologyTransform.jl/Example/Example1.png) and 20 directions. You can download the CSV file from [here](https://github.com/yossibokor/DiscretePersistentHomologyTransform.jl/Example/Example1.csv)
 
 To begin, load the CSV file into an array in Julia 
 
