@@ -55,20 +55,84 @@ function Find_Center(points)
 	end
 	
 	return Float64(c_x/n_p), Float64(c_y/n_p)
-end
+end #Find_Center
 
-function Recenter(points)
+function Recenter(points; mode="centroid", directions=1, C=1)
 	
-	points = convert(Array{Float64}, points)
-	center = Find_Center(points)
+	number_of_points = size(points,1)
+	if mode == "centroid"
+		points = convert(Array{Float64}, points)
+		center = Find_Center(points)
 	
-	for i in 1:size(points)[1]
-		points[i,1] = points[i,1] - center[1]
-		points[i,2] = points[i,2] - center[2]
+		for i in 1:size(points)[1]
+			points[i,1] = points[i,1] - center[1]
+			points[i,2] = points[i,2] - center[2]
+		end
+		
+		return points
+	elseif mode == "center"
+		dirs = Array{Float64}(undef, directions,2)
+		for n in 1:directions
+			dirs[n,1] = cos(n*pi/(directions/2))
+			dirs[n,2] = sin(n*pi/(directions/2))
+		end
+		
+		lambda = []
+		
+		for i in 1:directions
+			heights = Array{Float64}(undef, 1, number_of_points)
+			direction = dirs[i,:]
+			for i in 1:number_of_points
+				heights[i]= points[i,1]*direction[1] + points[i,2]*direction[2] #calculate heights in specificed direction
+			end
+			append!(lambda, minimum(heights))
+		end
+		
+		K = directions/2 #need to check with Kate about this.
+		
+		ld =lambda.*dirs
+		u = (1/K)*[sum(ld[:,1]), sum(ld[:,2])]
+		
+		points = points.-u'
+		
+		return points
+	
+	elseif mode =="scale"
+
+		dirs = Array{Float64}(undef, directions,2)
+		for n in 1:directions
+			dirs[n,1] = cos(n*pi/(directions/2))
+			dirs[n,2] = sin(n*pi/(directions/2))
+		end
+		
+		lambda = []
+		
+		for i in 1:directions
+			heights = Array{Float64}(undef, 1, number_of_points)
+			direction = dirs[i,:]
+			for i in 1:number_of_points
+				heights[i]= points[i,1]*direction[1] + points[i,2]*direction[2] #calculate heights in specificed direction
+			end
+			append!(lambda, minimum(heights))
+		end
+		
+		K = directions/2 #need to check with Kate about this.
+		
+		ld =lambda.*dirs
+		u = (1/K)*[sum(ld[:,1]), sum(ld[:,2])]
+		
+		points = points.-u'
+		
+		L = -sum(lambda)
+		
+		sf = C/L
+		
+		return sf.*points
+	
+	
 	end
 	
-	return points
-end
+end #Recenter
 
 
 function Evaluate_Rank(barcode, point)
