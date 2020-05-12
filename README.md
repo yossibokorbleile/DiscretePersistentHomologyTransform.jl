@@ -8,7 +8,7 @@ This package provides an implementation of the Persistent Homology Transform, as
 
 
 ## Installation
-Currently, the best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
+The best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
 ```julia
 using Pkg
 Pkg.add("DiscretePersistentHomologyTransform")
