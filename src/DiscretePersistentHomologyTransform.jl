@@ -395,7 +395,7 @@ end
 
 function test_2()
 	pht = PHT([1 1; 5 5], 1)
-	if pht == [0.9999999999999998 4.999999999999999]
+	if pht == [0.9999999999999998 Inf]
 		return []
 	else
 		println("Error: test_2, pht = ")
