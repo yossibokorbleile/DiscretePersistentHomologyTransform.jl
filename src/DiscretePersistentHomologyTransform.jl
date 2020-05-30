@@ -41,6 +41,7 @@ export 	PHT,
 		unittest
 		
 		
+		
 
 #### First some functions to recenter the curves ####
 function Find_Center(points)
@@ -342,7 +343,7 @@ function Average_Discretised_Rank(list_of_disc_ranks)
 end
 
 
-function Direction_Filtration(ordered_points, direction; out = "barcode")
+function Direction_Filtration(ordered_points, direction; out = "barcode", one_cycle = False )
 	number_of_points = length(ordered_points[:,1]) #number of points
 	heights = zeros(number_of_points) #empty array to be changed to heights for filtration
 	fv = zeros(2*number_of_points) #blank fv Eirene
@@ -389,18 +390,28 @@ function Direction_Filtration(ordered_points, direction; out = "barcode")
 	C = Eirene.eirene(rv=rv,cp=cp,ev=ev,fv=fv) # put it all into Eirene
 	
 	if out == "barcode"
-		return barcode(C, dim=0)
-	elseif out == "one_cycle"
-		return barcode(C, dim=0), maximum(heights)
+		if one_cycle == True
+			return barcode(C, dim=0), maximum(heights)
+		else
+			return barcode(C, dim=0)
+		end
 	else
-		return C
+		if one_cycle == True
+			return C, maximum(heights)
+		else
+			return C
+		end
 	end
+end #Direction_Filtration
+
+function Plot_Eirene_Diagram(C)
+	Eirene.plotpersistencediagram_pjs(C, dim=0)
 end
 
- 
+
 #### Wrapper for the PHT function ####
 
-function PHT(curve_points, directions; one_cycle = "n") ##accepts an ARRAY of points
+function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle = False) ##accepts an ARRAY of points
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
