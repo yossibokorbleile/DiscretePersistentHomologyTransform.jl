@@ -41,6 +41,7 @@ export 	PHT,
 		unittest
 		
 		
+		
 
 #### First some functions to recenter the curves ####
 function Find_Center(points)
@@ -55,20 +56,84 @@ function Find_Center(points)
 	end
 	
 	return Float64(c_x/n_p), Float64(c_y/n_p)
-end
+end #Find_Center
 
-function Recenter(points)
+function Recenter(points; mode="centroid", directions=1, C=1)
 	
-	points = convert(Array{Float64}, points)
-	center = Find_Center(points)
+	number_of_points = size(points,1)
+	if mode == "centroid"
+		points = convert(Array{Float64}, points)
+		center = Find_Center(points)
 	
-	for i in 1:size(points)[1]
-		points[i,1] = points[i,1] - center[1]
-		points[i,2] = points[i,2] - center[2]
+		for i in 1:size(points)[1]
+			points[i,1] = points[i,1] - center[1]
+			points[i,2] = points[i,2] - center[2]
+		end
+		
+		return points
+	elseif mode == "center"
+		dirs = Array{Float64}(undef, directions,2)
+		for n in 1:directions
+			dirs[n,1] = cos(n*pi/(directions/2))
+			dirs[n,2] = sin(n*pi/(directions/2))
+		end
+		
+		lambda = []
+		
+		for i in 1:directions
+			heights = Array{Float64}(undef, 1, number_of_points)
+			direction = dirs[i,:]
+			for i in 1:number_of_points
+				heights[i]= points[i,1]*direction[1] + points[i,2]*direction[2] #calculate heights in specificed direction
+			end
+			append!(lambda, minimum(heights))
+		end
+		
+		K = directions/2 #need to check with Kate about this.
+		
+		ld =lambda.*dirs
+		u = (1/K)*[sum(ld[:,1]), sum(ld[:,2])]
+		
+		points = points.-u'
+		
+		return points
+	
+	elseif mode =="scale"
+
+		dirs = Array{Float64}(undef, directions,2)
+		for n in 1:directions
+			dirs[n,1] = cos(n*pi/(directions/2))
+			dirs[n,2] = sin(n*pi/(directions/2))
+		end
+		
+		lambda = []
+		
+		for i in 1:directions
+			heights = Array{Float64}(undef, 1, number_of_points)
+			direction = dirs[i,:]
+			for i in 1:number_of_points
+				heights[i]= points[i,1]*direction[1] + points[i,2]*direction[2] #calculate heights in specificed direction
+			end
+			append!(lambda, minimum(heights))
+		end
+		
+		K = directions/2 #need to check with Kate about this.
+		
+		ld =lambda.*dirs
+		u = (1/K)*[sum(ld[:,1]), sum(ld[:,2])]
+		
+		points = points.-u'
+		
+		L = -sum(lambda)
+		
+		sf = C/L
+		
+		return sf.*points
+	
+	
 	end
 	
-	return points
-end
+end #Recenter
 
 
 function Evaluate_Rank(barcode, point)
@@ -278,7 +343,7 @@ function Average_Discretised_Rank(list_of_disc_ranks)
 end
 
 
-function Direction_Filtration(ordered_points, direction; out = "barcode")
+function Direction_Filtration(ordered_points, direction; out = "barcode", one_cycle = False )
 	number_of_points = length(ordered_points[:,1]) #number of points
 	heights = zeros(number_of_points) #empty array to be changed to heights for filtration
 	fv = zeros(2*number_of_points) #blank fv Eirene
@@ -325,18 +390,28 @@ function Direction_Filtration(ordered_points, direction; out = "barcode")
 	C = Eirene.eirene(rv=rv,cp=cp,ev=ev,fv=fv) # put it all into Eirene
 	
 	if out == "barcode"
-		return barcode(C, dim=0)
-	elseif out == "one_cycle"
-		return barcode(C, dim=0), maximum(heights)
+		if one_cycle == True
+			return barcode(C, dim=0), maximum(heights)
+		else
+			return barcode(C, dim=0)
+		end
 	else
-		return C
+		if one_cycle == True
+			return C, maximum(heights)
+		else
+			return C
+		end
 	end
+end #Direction_Filtration
+
+function Plot_Eirene_Diagram(C)
+	Eirene.plotpersistencediagram_pjs(C, dim=0)
 end
 
- 
+
 #### Wrapper for the PHT function ####
 
-function PHT(curve_points, directions; one_cycle = "n") ##accepts an ARRAY of points
+function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle = False) ##accepts an ARRAY of points
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
@@ -353,14 +428,14 @@ function PHT(curve_points, directions; one_cycle = "n") ##accepts an ARRAY of po
 	end
 	pht = []
 	
-	if one_cycle == "y"
+	if one_cycle == True
 		c_1 = []
 	end
 	
 	for i in 1:size(dirs,1)
 		
-		if one_cycle == "y"
-			pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], out ="one_cycle")
+		if one_cycle == True
+			pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], one_Cycle = True)
 			append!(cycle_1, c_1)
 			pht = vcat(pht, [pd])
 		else
@@ -369,7 +444,7 @@ function PHT(curve_points, directions; one_cycle = "n") ##accepts an ARRAY of po
 		end
 	end
 	
-	if one_cycle == "y"
+	if one_cycle == True
 		return pht, cycle_1
 		
 	else
@@ -395,7 +470,7 @@ end
 
 function test_2()
 	pht = PHT([1 1; 5 5], 1)
-	if pht == [0.9999999999999998 4.999999999999999]
+	if pht == [0.9999999999999998 Inf]
 		return []
 	else
 		println("Error: test_2, pht = ")

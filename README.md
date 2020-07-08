@@ -8,7 +8,7 @@ This package provides an implementation of the Persistent Homology Transform, as
 
 
 ## Installation
-Currently, the best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
+The best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
 ```julia
 using Pkg
 Pkg.add("DiscretePersistentHomologyTransform")
@@ -75,7 +75,7 @@ which returns the scores in $d$-dimensions.
 
 ## Examples
 ### Discrete Persistent Homology Transform
-We will go through an example using a random [shape](https://github.com/yossibokor/DiscretePersistentHomologyTransform.jl/Example/Example1.png) and 20 directions. You can download the CSV file from [here](https://github.com/yossibokor/DiscretePersistentHomologyTransform.jl/Example/Example1.csv)
+We will go through an example using a random [shape](https://github.com/yossibokor/DiscretePersistentHomologyTransform.jl/blob/master/Example/Example1.png) and 20 directions. You can download the CSV file from [here](https://.com/yossibokor/DiscretePersistentHomologyTransform.jl/blob/master/Example/Example1.csv)
 
 To begin, load the CSV file into an array in Julia 
 
