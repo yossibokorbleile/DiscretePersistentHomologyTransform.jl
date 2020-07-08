@@ -428,14 +428,14 @@ function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle
 	end
 	pht = []
 	
-	if one_cycle == "y"
+	if one_cycle == True
 		c_1 = []
 	end
 	
 	for i in 1:size(dirs,1)
 		
-		if one_cycle == "y"
-			pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], out ="one_cycle")
+		if one_cycle == True
+			pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], one_Cycle = True)
 			append!(cycle_1, c_1)
 			pht = vcat(pht, [pd])
 		else
@@ -444,7 +444,7 @@ function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle
 		end
 	end
 	
-	if one_cycle == "y"
+	if one_cycle == True
 		return pht, cycle_1
 		
 	else
