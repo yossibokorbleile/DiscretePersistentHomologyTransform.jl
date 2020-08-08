@@ -38,11 +38,11 @@ export 	PHT,
 		Weighted_Inner_Product_Matrix,
 		Principal_Component_Scores,
 		Average_Discretised_Rank,
+		Plot_Diagrams,
+		Plot_Eirene_Diagram,
 		unittest
 		
 		
-		
-
 #### First some functions to recenter the curves ####
 function Find_Center(points)
 	n_p = size(points,1)
@@ -403,6 +403,30 @@ function Direction_Filtration(ordered_points, direction; out = "barcode", one_cy
 		end
 	end
 end #Direction_Filtration
+
+# compare multiple persistence diagrams on the same plot)
+function Plot_Diagrams(diagrams; labels=[], colors=[:blue])
+	n_d = length(diagrams)
+	pyplot()
+	if labels!=[]
+		@assert n_d == length(labels)
+		scatter(diagrams[1][:,1], diagrams[1][:,2], label=labels[1])
+		if n_d != 1
+			for i in 2:n_d-1
+				scatter!(diagrams[i][:,1], diagrams[i][:,2], label=labels[i])
+			end
+		end
+		scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label=labels[n_d])
+	else
+		scatter(diagrams[1][:,1], diagrams[1][:,2], label="Diagram 1")
+		if n_d != 1
+			for i in 2:n_d-1
+				scatter!(diagrams[i][:,1], diagrams[i][:,2], label="Diagram $i")
+			end
+		end
+		scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label="Diagram $n_d")
+	end
+end
 
 function Plot_Eirene_Diagram(C)
 	Eirene.plotpersistencediagram_pjs(C, dim=0)
