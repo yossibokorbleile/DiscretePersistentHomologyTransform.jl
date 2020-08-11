@@ -21,6 +21,7 @@ using DataFrames
 using LinearAlgebra
 using SparseArrays
 using Eirene
+using Plots
 
 #### Exports ####
 
@@ -405,28 +406,33 @@ function Direction_Filtration(ordered_points, direction; out = "barcode", one_cy
 end #Direction_Filtration
 
 # compare multiple persistence diagrams on the same plot)
-function Plot_Diagrams(diagrams; labels=[], colors=[:blue])
+function Plot_Diagrams(diagrams::Array)
 	n_d = length(diagrams)
 	pyplot()
-	if labels!=[]
-		@assert n_d == length(labels)
-		scatter(diagrams[1][:,1], diagrams[1][:,2], label=labels[1])
-		if n_d != 1
-			for i in 2:n_d-1
-				scatter!(diagrams[i][:,1], diagrams[i][:,2], label=labels[i])
-			end
+	
+	scatter(diagrams[1][:,1], diagrams[1][:,2], label="Diagram 1")
+	if n_d != 1
+		for i in 2:n_d-1
+			scatter!(diagrams[i][:,1], diagrams[i][:,2], label="Diagram $i")
 		end
-		scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label=labels[n_d])
-	else
-		scatter(diagrams[1][:,1], diagrams[1][:,2], label="Diagram 1")
-		if n_d != 1
-			for i in 2:n_d-1
-				scatter!(diagrams[i][:,1], diagrams[i][:,2], label="Diagram $i")
-			end
-		end
-		scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label="Diagram $n_d")
 	end
+	scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label="Diagram $n_d")
 end
+
+function Plot_Diagrams(diagrams::Array, labels::Array{Sring})
+	n_d = length(diagrams)
+	pyplot()
+	
+	@assert n_d == length(labels)
+	scatter(diagrams[1][:,1], diagrams[1][:,2], label=labels[1])
+	if n_d != 1
+		for i in 2:n_d-1
+			scatter!(diagrams[i][:,1], diagrams[i][:,2], label=labels[i])
+		end
+	end
+	scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label=labels[n_d])
+end
+
 
 function Plot_Eirene_Diagram(C)
 	Eirene.plotpersistencediagram_pjs(C, dim=0)
@@ -435,7 +441,7 @@ end
 
 #### Wrapper for the PHT function ####
 
-function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle = False) ##accepts an ARRAY of points
+function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle = False) #accepts an ARRAY of points
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
