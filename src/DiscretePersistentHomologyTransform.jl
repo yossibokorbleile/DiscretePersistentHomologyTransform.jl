@@ -263,7 +263,6 @@ end
 
 function Set_Mean_Zero(discretised_ranks)
 	n_r = length(discretised_ranks)
-	println(n_r)
 	grid_size = size(discretised_ranks[1])
 	
 	for i in 1:n_r
@@ -450,8 +449,7 @@ function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle
 			dirs[n,1] = cos(n*pi/(directions/2))
 			dirs[n,2] = sin(n*pi/(directions/2))
 		end
-		println("Directions are:")
-		println(dirs)
+		println("Directions are:", dirs)
 	else
 		println("using directions provided")
 		dirs = copy(directions)
