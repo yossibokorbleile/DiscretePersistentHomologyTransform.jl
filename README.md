@@ -6,6 +6,7 @@ Yossi Bokor and Katharine Turner \
 
 This package provides an implementation of the Persistent Homology Transform, as defined in [Persistent Homology Transform for Modeling Shapes and Surfaces](https://arxiv.org/abs/1310.1030). It also does Rank Functions of Persistence Diagrams, and implements [Principal Component Analysis of Rank functions](https://www.sciencedirect.com/science/article/pii/S0167278916000476).
 
+[![DOI](https://zenodo.org/badge/259829148.svg)](https://zenodo.org/badge/latestdoi/259829148)
 
 ## Installation
 The best way to install DiscretePersistentHomologyTransform is to run the following in `Julia`:
