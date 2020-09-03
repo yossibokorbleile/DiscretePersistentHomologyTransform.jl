@@ -139,7 +139,7 @@ end #Recenter
 
 function Evaluate_Rank(barcode, point)
 	
-	n = size(barcode)[1]
+	n = size(barcode,1)
 	count = 0
 	
 	if point[2] < point[1]
@@ -170,13 +170,14 @@ function Total_Rank_Exact(barcode)
 		for j in 1:n
 			if barcode[i,1] < barcode[j,1]
 				if barcode[i,2] < barcode[j,2]
-					b = vcat(b, [barcode[j,1] barcode[i,2]])
+					if barcode[i,1] < barcode[j,2]
+						b = vcat(b, [barcode[i,1] barcode[j,2]])
+					end
 				end
 			end
 		end
 	end
-	
-	for i in 1:n
+	for i in 1:size(b,1)
 		append!(rks, Evaluate_Rank(barcode, b[i,:]))
 	end
 	return b, rks
@@ -417,7 +418,7 @@ function Plot_Diagrams(diagrams::Array)
 	scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label="Diagram $n_d")
 end
 
-function Plot_Diagrams(diagrams::Array, labels::Array{Sring})
+function Plot_Diagrams(diagrams::Array, labels::Array{String})
 	n_d = length(diagrams)
 	pyplot()
 	
@@ -439,7 +440,7 @@ end
 
 #### Wrapper for the PHT function ####
 
-function PHT(curve_points, directions; one_cycle = "n", out="barcode", one_cycle = False) #accepts an ARRAY of points
+function PHT(curve_points, directions; out="barcode", one_cycle = False) #accepts an ARRAY of points
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
