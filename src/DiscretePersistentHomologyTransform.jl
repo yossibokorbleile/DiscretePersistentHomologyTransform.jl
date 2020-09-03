@@ -171,7 +171,6 @@ function Total_Rank_Exact(barcode)
 			if barcode[i,1] < barcode[j,1]
 				if barcode[i,2] < barcode[j,2]
 					b = vcat(b, [barcode[j,1] barcode[i,2]])
-					m += 1
 				end
 			end
 		end
