@@ -167,7 +167,7 @@ function Total_Rank_Exact(barcode)
 	b = copy(barcode)
 	reshape(b, 2,n)
 	for i in 1:n
-		for j in 1:n
+		for j in 1:n 
 			if barcode[i,1] < barcode[j,1]
 				if barcode[i,2] < barcode[j,2]
 					if barcode[i,1] < barcode[j,2]
