@@ -195,8 +195,8 @@ function Total_Rank_Grid(barcode, x_g, y_g) #the grid should be an array, with 0
 
 		for i in 1:n_p
 			point = barcode[i,:]
-			x_i = findfirst(>=(point[1]), x_g)
-			y_i = findfirst(<=(point[2]), y_g)
+			x_i = findfirst(x->x>=(point[1]), x_g)
+			y_i = findfirst(y->y<=(point[2]), y_g)
 			for j in x_i:n_g-y_i+1
 				for k in j:n_g-y_i+1
 					rks[n_g-k+1,j] += 1
