@@ -585,7 +585,7 @@ function PCA(ranks, dimension, weights)
 	
 	normalised = Set_Mean_Zero(ranks)
 
-	D = Weighted_InnerProd_Matrix(normalised, weights)
+	D = Weighted_Inner_Product_Matrix(normalised, weights)
 	
 	return Principal_Component_Scores(D, dimension)
 end
