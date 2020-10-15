@@ -257,6 +257,75 @@ function Create_Heat_Map(barcode, x_g, y_g)
 	return p1
 end
 
+#### Doing 0th Persistent Homology Using Union Find with using birth of the essential 1-cycle as the death for the first 0-cycle ####
+
+function UF_PH(ord_pts::AbstractArray, direction::AbstractArray) #want ord_pts to be mx2 array
+	n_p = size(ord_pts, 1)
+	heights = Dict()
+	bd = Dict{Int, Array}()
+	parents = Dict{Int, Array}()
+	for i in 1:n_p
+		heights[i]=dot(ord_pts[i,:], direction)
+	end
+	appearance = sort(collect(heights), by=x->x[2])
+	bd[appearance[1][1]]=[appearance[1][2]]
+	parents[appearance[1][1]]= [appearance[1][1]]
+	Seen = Set(appearance[1][1])
+	for j in 2:n_p-1
+		i = appearance[j][1]
+		if i == n_p
+			n_b = Set([i-1, 1])
+		elseif i == 1
+			n_b = Set([i+1, n_p])
+		else
+			n_b = Set([i-1, i+1])
+		end
+		seen = collect(intersect(n_b, Seen))
+		if size(seen,1) == 0
+			parents[i]=[i]
+			bd[i] = [heights[i]]
+		elseif size(seen,1) == 1
+			for k in keys(parents)
+				if size(collect(intersect(Set(parents[k]), Set(seen[1]))),1) !=0
+					parents[k]=append!(parents[k], i)
+				end
+			end
+		else
+			pars = []
+			for k in keys(parents)
+				if size(collect(intersect(Set(parents[k]), Set(seen)))) != 0
+					append!(pars, k)
+				end
+			end
+			if heights[pars[1]] <= heights[pars[2]]
+				parents[pars[1]] = append!(parents[pars[1]], parents[pars[2]])
+				parents[pars[1]] = append!(parents[pars[1]], i)
+				bd[pars[2]] = append!(bd[pars[2]], heights[i])
+				delete!(parents, pars[2])
+			else
+				parents[pars[2]] = append!(parents[pars[2]], parents[pars[1]])
+				parents[pars[2]] = append!(parents[pars[2]], [i])
+				bd[pars[1]] = append!(bd[pars[1]], heights[i])
+				delete!(parents, pars[1])
+			end
+		end
+		push!(Seen, i)
+	end
+	@assert size(collect(Seen),1) == n_p-1
+	i = appearance[n_p][1]
+	@assert size(collect(keys(parents)),1) == 1
+	bd[collect(keys(parents))[1]] = append!(bd[collect(keys(parents))[1]], appearance[n_p][2])
+	push!(Seen, i)
+	@assert size(collect(Seen),1) == n_p
+	pers_pts = collect(keys(bd))
+	for i in pers_pts
+		if bd[i][1] == bd[i][2]
+			delete!(bd, i)
+		end
+	end
+	return bd
+end
+
 
 # Let us do PCA for the rank functions using Kate and Vanessa's paper.
 # So, I first need to calculate the pointwise norm
@@ -343,7 +412,7 @@ function Average_Discretised_Rank(list_of_disc_ranks)
 end
 
 
-function Direction_Filtration(ordered_points, direction; out = "barcode", one_cycle = False )
+function Direction_Filtration(ordered_points, direction; out = "barcode", one_cycle = false )
 	number_of_points = length(ordered_points[:,1]) #number of points
 	heights = zeros(number_of_points) #empty array to be changed to heights for filtration
 	fv = zeros(2*number_of_points) #blank fv Eirene
@@ -390,13 +459,13 @@ function Direction_Filtration(ordered_points, direction; out = "barcode", one_cy
 	C = Eirene.eirene(rv=rv,cp=cp,ev=ev,fv=fv) # put it all into Eirene
 	
 	if out == "barcode"
-		if one_cycle == True
+		if one_cycle == true
 			return barcode(C, dim=0), maximum(heights)
 		else
 			return barcode(C, dim=0)
 		end
 	else
-		if one_cycle == True
+		if one_cycle == true
 			return C, maximum(heights)
 		else
 			return C
@@ -440,7 +509,7 @@ end
 
 #### Wrapper for the PHT function ####
 
-function PHT(curve_points, directions; out="barcode", one_cycle = False) #accepts an ARRAY of points
+function PHT(curve_points, directions;method="Eirene", out="barcode", one_cycle = false) #accepts an ARRAY of points
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
@@ -456,23 +525,33 @@ function PHT(curve_points, directions; out="barcode", one_cycle = False) #accept
 	end
 	pht = []
 	
-	if one_cycle == True
+	if one_cycle == true
 		c_1 = []
 	end
 	
 	for i in 1:size(dirs,1)
-		
-		if one_cycle == True
-			pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], one_Cycle = True)
-			append!(cycle_1, c_1)
-			pht = vcat(pht, [pd])
+		if method == "Eirene"
+			if one_cycle == true
+				pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], one_Cycle = true)
+				append!(cycle_1, c_1)
+				pht = vcat(pht, [pd])
+			else
+				pd = Direction_Filtration(curve_points, dirs[i,:])
+				pht = vcat(pht, [pd])
+			end
+		elseif method == "UnionFind"
+			bd = UF_PH(curve_points, dirs[i,:])
+			pd=Array{Float64}(undef, 0,2)
+			for k in values(bd)
+				pd = vcat(pd, k')
+			end
+			pht=vcat(pht, [pd])
 		else
-			pd = Direction_Filtration(curve_points, dirs[i,:])
-			pht = vcat(pht, [pd])
+			println("Error: Pleasure ensure you specify either Eirene or UnionFind as your method.")
+			return
 		end
 	end
-	
-	if one_cycle == True
+	if one_cycle == true
 		return pht, cycle_1
 		
 	else
