@@ -28,7 +28,7 @@ using Plots
 export 	PHT,
 		Recenter,
 		Direction_Filtration,
-		Evaluate_Barcode,
+		Evaluate_Rank,
 		Total_Rank_Exact,
 		Total_Rank_Grid,
 		Total_Rank_Auto,
@@ -195,11 +195,13 @@ function Total_Rank_Grid(barcode, x_g, y_g) #the grid should be an array, with 0
 
 		for i in 1:n_p
 			point = barcode[i,:]
-			x_i = findfirst(>=(point[1]), x_g)
-			y_i = findfirst(<=(point[2]), y_g)
+			x_i = findfirst(x->x>=(point[1]), x_g)
+			y_i = findfirst(y->y<=(point[2]), y_g)
+
 			for j in x_i:n_g-y_i+1
 				for k in j:n_g-y_i+1
 					rks[n_g-k+1,j] += 1
+					println("Now have rank ", rks[n_g-k+1,j])
 				end
 			end
 		end
@@ -474,31 +476,31 @@ function Direction_Filtration(ordered_points, direction; out = "barcode", one_cy
 end #Direction_Filtration
 
 # compare multiple persistence diagrams on the same plot)
-function Plot_Diagrams(diagrams::Array)
+function Plot_Diagrams(diagrams::Array; ms=3)
 	n_d = length(diagrams)
-	pyplot()
+	Plots.pyplot()
 	
-	scatter(diagrams[1][:,1], diagrams[1][:,2], label="Diagram 1")
+	Plots.scatter(diagrams[1][:,1], diagrams[1][:,2], markersize=ms, label="Diagram 1")
 	if n_d != 1
 		for i in 2:n_d-1
-			scatter!(diagrams[i][:,1], diagrams[i][:,2], label="Diagram $i")
+			Plots.scatter!(diagrams[i][:,1], diagrams[i][:,2], markersize=ms, label="Diagram $i")
 		end
+		Plots.scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], markersize=ms, label="Diagram $n_d")
 	end
-	scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label="Diagram $n_d")
 end
 
-function Plot_Diagrams(diagrams::Array, labels::Array{String})
+function Plot_Diagrams(diagrams::Array, labels::Array{String}; ms=3)
 	n_d = length(diagrams)
-	pyplot()
+	Plots.pyplot()
 	
 	@assert n_d == length(labels)
-	scatter(diagrams[1][:,1], diagrams[1][:,2], label=labels[1])
+	Plots.scatter(diagrams[1][:,1], diagrams[1][:,2], markersize=ms, label=labels[1])
 	if n_d != 1
 		for i in 2:n_d-1
-			scatter!(diagrams[i][:,1], diagrams[i][:,2], label=labels[i])
+			Plots.scatter!(diagrams[i][:,1], diagrams[i][:,2], markersize=ms, label=labels[i])
 		end
+		Plots.scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], markersize=ms, label=labels[n_d])
 	end
-	scatter!(diagrams[n_d][:,1], diagrams[n_d][:,2], label=labels[n_d])
 end
 
 
@@ -509,7 +511,11 @@ end
 
 #### Wrapper for the PHT function ####
 
+<<<<<<< HEAD
 function PHT(curve_points, directions;method="Eirene", out="barcode", one_cycle = false) #accepts an ARRAY of points
+=======
+function PHT(curve_points, directions; one_cycle = false) #accepts an ARRAY of points
+>>>>>>> bca2f6845a788cf93b8221188ac55662f6f261ad
 	
 	if typeof(directions) ==  Int64
 		println("auto generating directions")
@@ -530,6 +536,7 @@ function PHT(curve_points, directions;method="Eirene", out="barcode", one_cycle 
 	end
 	
 	for i in 1:size(dirs,1)
+<<<<<<< HEAD
 		if method == "Eirene"
 			if one_cycle == true
 				pd,c_1 = Direction_Filtration(curve_points, dirs[i,:], one_Cycle = true)
@@ -546,13 +553,26 @@ function PHT(curve_points, directions;method="Eirene", out="barcode", one_cycle 
 				pd = vcat(pd, k')
 			end
 			pht=vcat(pht, [pd])
+=======
+		
+		if one_cycle == true
+			pd,c_1_1 = Direction_Filtration(curve_points, dirs[i,:], one_cycle = true)
+			append!(c_1, c_1_1)
+			pht = vcat(pht, [pd])
+>>>>>>> bca2f6845a788cf93b8221188ac55662f6f261ad
 		else
 			println("Error: Pleasure ensure you specify either Eirene or UnionFind as your method.")
 			return
 		end
 	end
+<<<<<<< HEAD
 	if one_cycle == true
 		return pht, cycle_1
+=======
+	
+	if one_cycle == true
+		return pht, c_1
+>>>>>>> bca2f6845a788cf93b8221188ac55662f6f261ad
 		
 	else
 		return pht
