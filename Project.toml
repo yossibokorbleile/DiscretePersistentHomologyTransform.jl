@@ -4,7 +4,7 @@ keywords = ["topological data analysis", "persistent homology transfer"]
 license = "MIT"
 desc = "Discrete persistent homology transfer calculations"
 author = "Yossi Bokor <yossi.bokor@anu.edu.au>"
-version = "1.0.2"
+version = "1.0.1"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
